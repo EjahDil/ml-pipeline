@@ -212,3 +212,44 @@ class FeatureEngineering(BaseEstimator, TransformerMixin):
             elif enc.strategy == "onehot":
                 names.extend([f"{col}_{cat}" for cat in enc.categories])
         return names
+    
+    def inverse_transform(self, X: Union[pd.DataFrame, np.ndarray]) -> pd.DataFrame:
+
+        if isinstance(X, np.ndarray):
+            X = pd.DataFrame(X, columns=self.get_feature_names_out())
+        
+        result = X[self.numerical].copy()
+        if self.scaler:
+            result[self.numerical] = self.scaler.inverse_transform(result[self.numerical])
+        
+        for col in self.columns:
+            enc = self.encodings[col]
+            if enc.strategy == "mapping":
+                inv_map = {v: k for k, v in self.encoders[col].items() if not pd.isna(v)}
+                result[col] = X[col].map(inv_map).fillna(self.unknown_token)
+            elif enc.strategy == "ordinal":
+                result[col] = self.encoders[col].inverse_transform(X[[col]])
+            elif enc.strategy == "onehot":
+                ohe_cols = [f"{col}_{cat}" for cat in enc.categories]
+                result[col] = self.encoders[col].inverse_transform(X[ohe_cols])
+        
+        return result
+    
+    def save(self, path: Path):
+        path.mkdir(parents=True, exist_ok=True)
+        joblib.dump(self, path / "feature_engineer.joblib")
+        metadata = {
+            "config_hash": self._config_hash,
+            "columns": self.columns,
+            "numerical": self.numerical,
+            "feature_names": self.get_feature_names_out()
+        }
+        with open(path / "metadata.json", "w") as f:
+            json.dump(metadata, f, indent=2)
+        logger.info(f"Feature engineer saved to {path}")
+    
+    @classmethod
+    def load(cls, path: Path):
+        engineer = joblib.load(path / "feature_engineer.joblib")
+        logger.info(f"Loaded with {len(engineer.columns)} categorical and {len(engineer.numerical)} numerical columns")
+        return engineer
