@@ -1,10 +1,11 @@
+import os
 import pandas as pd
 import numpy as np
 from pathlib import Path
 from typing import Tuple
 import yaml
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 logging.basicConfig(level=logging.INFO)
@@ -19,11 +20,19 @@ class DataPreparation:
         
         self.data_config = self.config['data']
         self.preprocessing_config = self.config['preprocessing']
-        self.raw_data = self.data_config['raw_data']
     
     def load_data(self) -> pd.DataFrame:    
         logger.info("Loading data")
-        df = pd.read_csv(self.data_config['raw_data'])
+
+        RAW_DATA_SOURCE = ""
+        secret_path = Path("/run/secrets/raw_data_source")
+        if secret_path.exists():
+            RAW_DATA_SOURCE = secret_path.read_text().strip()
+        else:
+
+            RAW_DATA_SOURCE = "data/sample.csv" #os.getenv('RAW_DATA_SOURCE') 
+            
+        df = pd.read_csv(RAW_DATA_SOURCE)
         logger.info(f"Loaded {len(df)} rows and {len(df.columns)} columns")
         return df
     
@@ -35,11 +44,11 @@ class DataPreparation:
             if df[col].isnull().sum() > 0:
                 if df[col].dtype in ['float64', 'int64']:
                     if method == 'mean':
-                        df[col].fillna(df[col].mean(), inplace=True)
+                        df[col] = df[col].fillna(df[col].mean())
                     elif method == 'median':
-                        df[col].fillna(df[col].median(), inplace=True)
+                        df[col] = df[col].fillna(df[col].median())
                 else:
-                    df[col].fillna(df[col].mode()[0], inplace=True)
+                    df[col] = df[col].fillna(df[col].mode()[0])
         
         return df
     
@@ -79,55 +88,22 @@ class DataPreparation:
         return train_df, test_df
     
     def save_processed_data(self, train_df: pd.DataFrame, test_df: pd.DataFrame):       
-        logger.info("Saving processed data to MongoDB")
+        logger.info("Saving processed data")
         
-        timestamp = datetime.utcnow()
+        timestamp = datetime.now(timezone.utc)
         processing_id = timestamp.strftime('%Y%m%d_%H%M%S')
         
-        train_records = train_df.to_dict('records')
-        for record in train_records:
-            record['split'] = 'train'
-            record['processing_id'] = processing_id
-            record['processed_at'] = timestamp
-        
-        test_records = test_df.to_dict('records')
-        for record in test_records:
-            record['split'] = 'test'
-            record['processing_id'] = processing_id
-            record['processed_at'] = timestamp
-        
-        processed_collection = self.db['processed_data']
-        
-        if train_records:
-            train_result = processed_collection.insert_many(train_records)
-            logger.info(f"Saved {len(train_result.inserted_ids)} train records")
-        
-        if test_records:
-            test_result = processed_collection.insert_many(test_records)
-            logger.info(f"Saved {len(test_result.inserted_ids)} test records")
-        
-        metadata_collection = self.db['processing_metadata']
-        metadata = {
-            'processing_id': processing_id,
-            'timestamp': timestamp,
-            'train_size': len(train_df),
-            'test_size': len(test_df),
-            'total_size': len(train_df) + len(test_df),
-            'train_columns': list(train_df.columns),
-            'test_columns': list(test_df.columns),
-            'config': self.config,
-            'status': 'completed'
-        }
-        metadata_collection.insert_one(metadata)
-        
-        logger.info(f"Processing metadata saved with ID: {processing_id}")
-        
-        return {
-            'processing_id': processing_id,
-            'train_size': len(train_df),
-            'test_size': len(test_df),
-            'collection': 'processed_data'
-        }
+
+        output_dir = os.path.join("data", "processed", processing_id)
+        os.makedirs(output_dir, exist_ok=True)
+
+        train_path = os.path.join(output_dir, "train.csv")
+        train_df.to_csv(train_path, index=False)
+        logger.info(f"Train data saved to {train_path} ({len(train_df)} records)")
+
+        test_path = os.path.join(output_dir, "test.csv")
+        test_df.to_csv(test_path, index=False)
+        logger.info(f"Test data saved ({len(test_df)} records)")        
     
     def run(self):
         df = self.load_data()

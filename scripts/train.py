@@ -7,6 +7,7 @@ project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from pipelines.pre_processing import DataPreparation
+from pipelines.feature_engineering import FeatureEngineering
 
 logging.basicConfig(
     level=logging.INFO,
@@ -20,9 +21,27 @@ def main(config_path: str):
     
     try:
         logger.info("\nData Preparation")
+        
         data_prep = DataPreparation(config_path)
         train_df, test_df = data_prep.run()
+
+        logger.info("\nFeature Engineering")
         
+        feature_eng =  FeatureEngineering(config_path)
+        target_col = data_prep.config['features']['target']
+
+        X_train = train_df.drop(columns=[target_col])
+        y_train = train_df[target_col]
+        X_test = test_df.drop(columns=[target_col])
+        y_test = test_df[target_col]
+
+        feature_eng.fit(X_train)
+
+        X_train_transformed = feature_eng.transform(X_train)
+        X_test_transformed = feature_eng.transform(X_test)
+        
+        logger.info("Transformed train shape: %s", X_train_transformed.shape)
+        logger.info("Transformed test shape: %s", X_test_transformed.shape)
        
     except Exception as e:
         logger.error(f"Training pipeline failed: {str(e)}", exc_info=True)
@@ -40,6 +59,3 @@ if __name__ == "__main__":
     
     args = parser.parse_args()
     main(args.config)
-
-
-
