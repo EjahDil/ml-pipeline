@@ -5,7 +5,7 @@ from pathlib import Path
 from unittest.mock import patch, MagicMock
 import yaml
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from pipelines.pre_processing import DataPreparation
 import os
 
@@ -84,20 +84,31 @@ def test_split_data(mock_train_test_split, data_prep):
 
 @patch('os.makedirs')
 @patch('pandas.DataFrame.to_csv')
-@patch('datetime.utcnow', return_value=datetime(2023, 1, 1, 0, 0, 0))
-def test_save_processed_data(mock_utcnow, mock_to_csv, mock_makedirs, data_prep):
+@patch('pipelines.pre_processing.datetime')  # patch the module's datetime object
+def test_save_processed_data(mock_datetime_module, mock_to_csv, mock_makedirs, data_prep):
+    fake_dt = datetime(2023, 1, 1, 0, 0, 0)
+    mock_datetime_module.now.return_value = fake_dt
+    mock_datetime_module.utcnow.return_value = fake_dt
+
+   
+    mock_datetime_module.strftime = datetime.strftime
+
     train_df = SAMPLE_DF.iloc[:3]
     test_df = SAMPLE_DF.iloc[3:]
     data_prep.save_processed_data(train_df, test_df)
-    mock_makedirs.assert_called_with(os.path.join("data", "processed", "20230101_000000"), exist_ok=True)
+
+    mock_makedirs.assert_called_with(
+        os.path.join("data", "processed", "20230101_000000"),
+        exist_ok=True
+    )
     assert mock_to_csv.call_count == 2
 
-@patch.object(DataPreparation, 'load_data', return_value=SAMPLE_DF)
-@patch.object(DataPreparation, 'handle_missing_values', return_value=SAMPLE_DF)
-@patch.object(DataPreparation, 'handle_outliers', return_value=SAMPLE_DF)
-@patch.object(DataPreparation, 'split_data', return_value=(SAMPLE_DF.iloc[:3], SAMPLE_DF.iloc[3:]))
 @patch.object(DataPreparation, 'save_processed_data')
-def test_run(mock_save_processed_data, mock_split_data, mock_handle_outliers, mock_handle_missing_values, mock_load_data, data_prep):
+@patch.object(DataPreparation, 'split_data', return_value=(SAMPLE_DF.iloc[:3], SAMPLE_DF.iloc[3:]))
+@patch.object(DataPreparation, 'handle_outliers', return_value=SAMPLE_DF)
+@patch.object(DataPreparation, 'handle_missing_values', return_value=SAMPLE_DF)
+@patch.object(DataPreparation, 'load_data', return_value=SAMPLE_DF)
+def test_run(mock_load_data, mock_handle_missing_values, mock_handle_outliers, mock_split_data, mock_save_processed_data, data_prep):
     train_df, test_df = data_prep.run()
     assert len(train_df) == 3
     assert len(test_df) == 2
