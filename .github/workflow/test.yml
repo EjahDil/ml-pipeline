@@ -6,7 +6,12 @@ on:
 
     paths:
       - ml-pipeline/*
+  pull_request:
+    branches:
+      - '*'     
 
+    paths:
+      - ml-pipeline/*
   workflow_dispatch:
    
 jobs:
