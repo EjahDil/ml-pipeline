@@ -2,3 +2,6 @@ pandas
 PyYAML
 scikit-learn
 pytest
+xgboost
+mlflow
+load_dotenv
