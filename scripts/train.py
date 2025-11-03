@@ -8,6 +8,7 @@ sys.path.insert(0, str(project_root))
 
 from pipelines.pre_processing import DataPreparation
 from pipelines.feature_engineering import FeatureEngineering
+from pipelines.model_training import ModelTraining
 
 logging.basicConfig(
     level=logging.INFO,
@@ -42,6 +43,10 @@ def main(config_path: str):
         
         logger.info("Transformed train shape: %s", X_train_transformed.shape)
         logger.info("Transformed test shape: %s", X_test_transformed.shape)
+        
+        logger.info("\nModel Training")
+        model_trainer = ModelTraining(config_path)
+        model = model_trainer.train(X_train_transformed, y_train)
        
     except Exception as e:
         logger.error(f"Training pipeline failed: {str(e)}", exc_info=True)
