@@ -102,3 +102,37 @@ encoding:
     strategy: onehot
     categories: ["Professional", "Crafts", "Other", "Self", "Retired", "Homemaker", "Clerical", "Student"]
   
+training:
+  model_types: ["random_forest", "xgboost", "logistic_regression"]
+  cv_folds: 5
+  scoring: roc_auc
+  n_jobs: -1
+
+model_params:
+  random_forest:
+    n_estimators: 100
+    max_depth: 10
+    min_samples_split: 5
+    min_samples_leaf: 2
+    random_state: 42
+  
+  xgboost:
+    n_estimators: 100
+    max_depth: 6
+    learning_rate: 0.1
+    subsample: 0.8
+    colsample_bytree: 0.8
+    random_state: 42
+
+mlflow:
+  tracking_uri: http://localhost:5000
+  experiment_name: telecom_churn
+  run_name: churn_model_run
+
+monitoring:
+  log_metrics: true
+  log_params: true
+  log_model: true
+  log_artifacts: true
+
+  
