@@ -20,7 +20,7 @@ jobs:
   build-and-push:
     name: Build & push Docker image
     runs-on: ubuntu-latest
-    needs: test  # assumes your test workflow is named "test"
+    needs: test 
     outputs:
       image_full: ${{ steps.set-tags.outputs.image_full }}
       image_sha: ${{ steps.set-tags.outputs.image_sha }}
@@ -69,7 +69,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./Dockerfile  # adjust if different
+          file: ./Dockerfile
           push: true
           tags: |
             ${{ steps.set-tags.outputs.image_sha }}
@@ -105,8 +105,9 @@ jobs:
           AZURE_STORAGE_ACCOUNT_NAME: ${{ secrets.AZURE_STORAGE_ACCOUNT_NAME }}
           AZURE_STORAGE_ACCOUNT_KEY: ${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }}
         run: |
-          dvc remote modify --local azure_remote account_name $AZURE_STORAGE_ACCOUNT_NAME
-          dvc remote modify --local azure_remote account_key $AZURE_STORAGE_ACCOUNT_KEY
+          dvc remote add -d azure_remote azure://telcustomerchurndata/churndata || true
+          dvc remote modify --local azure_remote mlchurndatastore $AZURE_STORAGE_ACCOUNT_NAME
+          dvc remote modify --local azure_remote account_key $AZURE_STORAGE_ACCOUNT_KE
 
       - name: Pull latest data with DVC from Azure Blob Storage
         run: |
