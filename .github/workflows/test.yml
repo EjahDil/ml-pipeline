@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - '*'     
+      - ci/cd-deploy
 
     paths:
       - ml-pipeline/*
