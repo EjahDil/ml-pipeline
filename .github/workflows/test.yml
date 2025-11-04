@@ -3,17 +3,16 @@ on:
   push:
     branches:
       - '*'     
-      - ci/cd-deploy
 
-    paths:
-      - ml-pipeline/*
-  pull_request:
-    branches:
-      - '*'     
+  #   paths:
+  #     - ml-pipeline/*
+  # pull_request:
+  #   branches:
+  #     - '*'     
 
-    paths:
-      - ml-pipeline/*
-  workflow_dispatch:
+  #   paths:
+  #     - ml-pipeline/*
+  # workflow_dispatch:
    
 jobs:
     build: 
