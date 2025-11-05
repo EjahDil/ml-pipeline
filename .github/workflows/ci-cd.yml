@@ -156,8 +156,8 @@ jobs:
           fi
            
           dvc remote add -d azure_remote azure://telcustomerchurndata/churndata || true
-          dvc remote modify --local azure_remote mlchurndatastore $AZURE_STORAGE_ACCOUNT_NAME
-          dvc remote modify --local azure_remote account_key $AZURE_STORAGE_ACCOUNT_KE
+          dvc remote modify --local azure_remote account_name $AZURE_STORAGE_ACCOUNT_NAME
+          dvc remote modify --local azure_remote account_key $AZURE_STORAGE_ACCOUNT_KEY
 
       - name: Pull latest data with DVC from Azure Blob Storage
         run: |
