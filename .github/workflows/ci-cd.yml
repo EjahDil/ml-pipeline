@@ -176,6 +176,7 @@ jobs:
       - name: Pull latest data with DVC from Azure Blob Storage
         run: |
            dvc pull
+           chmod -R u+rwX,go+rX ./data
            echo "Listing contents of the data directory:"
            ls -la ./data
            echo "Disk usage of data directory:"
