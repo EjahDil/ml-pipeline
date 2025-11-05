@@ -42,12 +42,12 @@ jobs:
           fi
 
       - name: Install dependencies
-        run: pip install -r ml-pipeline/requirements.txt
+        run: pip install -r requirements.txt
 
       - name: Test with Pytest
         run: |
           set -a
-          source ml-pipeline/.env.example
+          source .env.example
           set +a
           echo "Loaded environment variables:"
           env | grep POSTGRES_
