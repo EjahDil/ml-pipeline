@@ -173,18 +173,15 @@ jobs:
           
           # azure_remote $DVC_DATA_DIR/cell2celltrain.csv.dvc
 
-      # - name: Pull latest data with DVC from Azure Blob Storage
-      #   run: |
-      #     # dvc pull
-      #     # dvc unprotect ./data/cell2celltrain.csv
-      #     # sudo chmod -R u+rwX,go+rX ./data
-      #     # sudo chown -R $USER:$USER ./data
-      #     cp ./data/cell2celltrain.csv ./data/cell2celltrain_copy.csv
-      #     chmod 644 ./data/cell2celltrain_copy.csv
-      #     echo "Listing contents of the data directory:"
-      #     ls -la ./data
-      #     echo "Disk usage of data directory:"
-      #     du -sh ./data
+      - name: Pull latest data with DVC from Azure Blob Storage
+        run: |
+          dvc pull
+          # sudo chmod -R u+rwX,go+rX ./data
+          # sudo chown -R $USER:$USER ./data
+          echo "Listing contents of the data directory:"
+          ls -la ./data
+          echo "Disk usage of data directory:"
+          du -sh ./data
 
           # -r azure_remote ${DVC_DATA_DIR}
 
@@ -202,7 +199,7 @@ jobs:
           username: ${{ secrets.AZURE_SSH_USER }}
           port: ${{ secrets.AZURE_SSH_PORT || 22 }}
           key: ${{ secrets.AZURE_SSH_PRIVATE_KEY }}
-          source: "./docker-compose.yml, ./cell2celltrain.csv.dvc"
+          source: "./docker-compose.yml, data/cell2celltrain.csv"
           target: ${{ env.REMOTE_DEPLOY_DIR }}
           strip_components: 0
 
