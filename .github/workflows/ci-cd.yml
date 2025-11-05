@@ -149,15 +149,25 @@ jobs:
           # Confirm we are in the repo root
           pwd
           ls -la
-          
+
           # Initialize DVC only if needed
           if [ ! -d .dvc ]; then
             dvc init
           fi
-           
+
+          # Ensure data directory exists
+          mkdir -p $DVC_DATA_DIR
+
+          # Copy the .dvc metafile to the data directory
+          cp cell2celltrain.csv.dvc $DVC_DATA_DIR/
+
+          # Setup DVC remote
           dvc remote add -d azure_remote azure://telcustomerchurndata/churndata || true
           dvc remote modify --local azure_remote account_name $AZURE_STORAGE_ACCOUNT_NAME
           dvc remote modify --local azure_remote account_key $AZURE_STORAGE_ACCOUNT_KEY
+
+          # Pull the data (downloads cell2celltrain.csv into the data dir)
+          dvc pull -r azure_remote $DVC_DATA_DIR/cell2celltrain.csv.dvc
 
       - name: Pull latest data with DVC from Azure Blob Storage
         run: |
