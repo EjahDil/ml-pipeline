@@ -132,7 +132,7 @@ def main(config_path: str):
 
         logger.info("Cleaning Up Local")
         os.remove(f"data/predictions_{now}.csv")
-        # os.remove(f"artifact/feature_engineer.joblib")
+        
         if meets_thresholds:
             logger.info("\nModel meets all performance thresholds!")
         else:
