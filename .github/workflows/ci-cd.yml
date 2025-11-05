@@ -167,11 +167,17 @@ jobs:
           dvc remote modify --local azure_remote account_key $AZURE_STORAGE_ACCOUNT_KEY
 
           # Pull the data (downloads cell2celltrain.csv into the data dir)
-          dvc pull -r azure_remote $DVC_DATA_DIR/cell2celltrain.csv.dvc
+          
+          
+          # dvc pull
+          
+          # azure_remote $DVC_DATA_DIR/cell2celltrain.csv.dvc
 
       - name: Pull latest data with DVC from Azure Blob Storage
         run: |
-          dvc pull -r azure_remote ${DVC_DATA_DIR}
+          dvc pull 
+          
+          # -r azure_remote ${DVC_DATA_DIR}
 
       - name: Prepare known_hosts for SSH to Azure VM
         id: known-hosts
