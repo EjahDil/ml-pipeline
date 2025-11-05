@@ -56,16 +56,11 @@ jobs:
 
 
 
-
-
-
-
-
   # Depends on your existing test workflow - wait for it to succeed
   build-and-push:
     name: Build & push Docker image
     runs-on: ubuntu-latest
-    needs: test 
+    # needs: test 
     outputs:
       image_full: ${{ steps.set-tags.outputs.image_full }}
       image_sha: ${{ steps.set-tags.outputs.image_sha }}
