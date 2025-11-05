@@ -175,13 +175,14 @@ jobs:
 
       - name: Pull latest data with DVC from Azure Blob Storage
         run: |
-           dvc pull
-           chmod -R u+rwX,go+rX ./data
-           echo "Listing contents of the data directory:"
-           ls -la ./data
-           echo "Disk usage of data directory:"
-           du -sh ./data
-          
+          dvc pull
+          sudo chmod -R u+rwX,go+rX ./data
+          sudo chown -R $USER:$USER ./data
+          echo "Listing contents of the data directory:"
+          ls -la ./data
+          echo "Disk usage of data directory:"
+          du -sh ./data
+
           # -r azure_remote ${DVC_DATA_DIR}
 
       - name: Prepare known_hosts for SSH to Azure VM
