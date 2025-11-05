@@ -207,7 +207,7 @@ jobs:
           username: ${{ secrets.AZURE_SSH_USER }}
           port: ${{ secrets.AZURE_SSH_PORT}}
           key: ${{ secrets.AZURE_SSH_PRIVATE_KEY }}
-          source: "./cell2cellltrain_small.csv.dvc"
+          source: "./cell2celltrain_small.csv.dvc"
           target: ${{ env.REMOTE_DEPLOY_DIR }}/data
           strip_components: 0
 
