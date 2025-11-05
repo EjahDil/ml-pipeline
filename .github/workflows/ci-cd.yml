@@ -176,9 +176,11 @@ jobs:
       - name: Pull latest data with DVC from Azure Blob Storage
         run: |
           dvc pull
-          dvc unprotect ./data/cell2celltrain.csv
-          sudo chmod -R u+rwX,go+rX ./data
-          sudo chown -R $USER:$USER ./data
+          # dvc unprotect ./data/cell2celltrain.csv
+          # sudo chmod -R u+rwX,go+rX ./data
+          # sudo chown -R $USER:$USER ./data
+          cp ./data/cell2celltrain.csv ./data/cell2celltrain_copy.csv
+          chmod 644 ./data/cell2celltrain_copy.csv
           echo "Listing contents of the data directory:"
           ls -la ./data
           echo "Disk usage of data directory:"
@@ -200,7 +202,7 @@ jobs:
           username: ${{ secrets.AZURE_SSH_USER }}
           port: ${{ secrets.AZURE_SSH_PORT || 22 }}
           key: ${{ secrets.AZURE_SSH_PRIVATE_KEY }}
-          source: "./docker-compose.yml, ./data/cell2celltrain.csv"
+          source: "./docker-compose.yml, ./data/cell2celltrain_copy.csv"
           target: ${{ env.REMOTE_DEPLOY_DIR }}
           strip_components: 0
 
