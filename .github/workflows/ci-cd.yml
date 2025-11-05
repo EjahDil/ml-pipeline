@@ -135,56 +135,71 @@ jobs:
         with:
           python-version: "3.x"
 
-      # - name: Install DVC and Azure Blob Storage dependencies
-      #   run: |
-      #     python -m pip install --upgrade pip
-      #     pip install dvc[azure]
+      - name: Install DVC and Azure Blob Storage dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install dvc[azure]
 
-      # - name: Configure DVC remote with Azure Blob Storage credentials
-      #   env:
-      #     AZURE_STORAGE_ACCOUNT_NAME: ${{ secrets.AZURE_STORAGE_ACCOUNT_NAME }}
-      #     AZURE_STORAGE_ACCOUNT_KEY: ${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }}
-      #   run: |
+      - name: Configure DVC remote with Azure Blob Storage credentials
+        env:
+          AZURE_STORAGE_ACCOUNT_NAME: ${{ secrets.AZURE_STORAGE_ACCOUNT_NAME }}
+          AZURE_STORAGE_ACCOUNT_KEY: ${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }}
+        run: |
 
-      #     # Confirm we are in the repo root
-      #     pwd
-      #     ls -la
+          # Confirm we are in the repo root
+          pwd
+          ls -la
 
-      #     # Initialize DVC only if needed
-      #     if [ ! -d .dvc ]; then
-      #       dvc init
-      #     fi
+          # Initialize DVC only if needed
+          if [ ! -d .dvc ]; then
+            dvc init
+          fi
 
-      #     # # Ensure data directory exists
-      #     mkdir -p $DVC_DATA_DIR
+          # # Ensure data directory exists
+          mkdir -p $DVC_DATA_DIR
 
-      #     # # Copy the .dvc metafile to the data directory
-      #     # cp cell2celltrain.csv.dvc $DVC_DATA_DIR/
-      #     # cp cell2celltrain_small.csv.dvc $DVC_DATA_DIR/
+          # # Copy the .dvc metafile to the data directory
+          cell2celltrain.csv.dvc $DVC_DATA_DIR/
+          cell2celltrain_small.csv.dvc $DVC_DATA_DIR/
 
-      #     # Setup DVC remote
-      #     # dvc remote add -d azure_remote azure://telcustomerchurndata/churndata || true
-      #     # dvc remote modify --local azure_remote account_name $AZURE_STORAGE_ACCOUNT_NAME
-      #     # dvc remote modify --local azure_remote account_key $AZURE_STORAGE_ACCOUNT_KEY
+          # Setup DVC remote
+          # dvc remote add -d azure_remote azure://telcustomerchurndata/churndata || true
+          # dvc remote modify --local azure_remote account_name $AZURE_STORAGE_ACCOUNT_NAME
+          # dvc remote modify --local azure_remote account_key $AZURE_STORAGE_ACCOUNT_KEY
 
-      #     # Pull the data (downloads cell2celltrain.csv into the data dir)
+          # Pull the data (downloads cell2celltrain.csv into the data dir)
           
           
-      #     # dvc pull
+          # dvc pull
           
-      #     # azure_remote $DVC_DATA_DIR/cell2celltrain.csv.dvc
+          # azure_remote $DVC_DATA_DIR/cell2celltrain.csv.dvc
 
-      # - name: Listing the contents of the data directory
-      #   run: |
-      #     #dvc pull
-      #     # sudo chmod -R u+rwX,go+rX ./data
-      #     # sudo chown -R $USER:$USER ./data
-      #     echo "Listing contents of the data directory:"
-      #     ls -la ./data
-      #     echo "Disk usage of data directory:"
-      #     du -sh ./data
+      - name: Listing the contents of the data directory
+        run: |
+          #dvc pull
+          # sudo chmod -R u+rwX,go+rX ./data
+          # sudo chown -R $USER:$USER ./data
+          echo "Listing contents of the data directory:"
+          ls -la ./data
+          echo "Disk usage of data directory:"
+          du -sh ./data
 
           # -r azure_remote ${DVC_DATA_DIR}
+
+      - name: Install Azure CLI
+        run: |
+          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
+      - name: Upload dataset folder to Azure Blob Storage
+        env:
+          AZURE_STORAGE_ACCOUNT_NAME: ${{ secrets.AZURE_STORAGE_ACCOUNT_NAME }}
+          AZURE_STORAGE_ACCOUNT_KEY: ${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }}
+        run: |
+          az storage blob upload-batch \
+            --account-name $AZURE_STORAGE_ACCOUNT_NAME \
+            --destination telcustomerchurndata \
+            --source ./data \
+            --account-key $AZURE_STORAGE_ACCOUNT_KEY
 
       - name: Prepare known_hosts for SSH to Azure VM
         id: known-hosts
@@ -193,12 +208,12 @@ jobs:
           ssh-keyscan -H ${{ secrets.AZURE_SSH_HOST }} >> ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
 
-      - name: Ensure target subdir exists
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.AZURE_SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key ${{ secrets.AZURE_SSH_USER }}@${{ secrets.AZURE_SSH_HOST }} "mkdir -p ${REMOTE_DEPLOY_DIR}/data"
+      # - name: Ensure target subdir exists
+      #   run: |
+      #     mkdir -p ~/.ssh
+      #     echo "${{ secrets.AZURE_SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+      #     chmod 600 ~/.ssh/deploy_key
+      #     ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key ${{ secrets.AZURE_SSH_USER }}@${{ secrets.AZURE_SSH_HOST }} "mkdir -p ${REMOTE_DEPLOY_DIR}/data"
 
       - name: Copy docker-compose and data folder to Azure VM
         uses: appleboy/scp-action@v1.0.0
@@ -207,8 +222,8 @@ jobs:
           username: ${{ secrets.AZURE_SSH_USER }}
           port: ${{ secrets.AZURE_SSH_PORT}}
           key: ${{ secrets.AZURE_SSH_PRIVATE_KEY }}
-          source: "./cell2celltrain_small.csv.dvc"
-          target: ${{ env.REMOTE_DEPLOY_DIR }}/data
+          source: "./docker-compose.yml"
+          target: ${{ env.REMOTE_DEPLOY_DIR }}
           strip_components: 0
 
       - name: Deploy on Azure VM with docker-compose
@@ -228,7 +243,20 @@ jobs:
           envs: REMOTE_DIR,DOCKERHUB_USERNAME,DOCKERHUB_TOKEN,AZURE_STORAGE_ACCOUNT_NAME, AZURE_STORAGE_ACCOUNT_KEY
           script: |
             set -euo pipefail
+            
             mkdir -p "$REMOTE_DIR" || true
+
+            if ! command -v az &> /dev/null; then
+              curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+            fi
+
+            # Download data folder from Azure Blob Storage
+            az storage blob download-batch \
+              --account-name $AZURE_STORAGE_ACCOUNT_NAME \
+              --account-key $AZURE_STORAGE_ACCOUNT_KEY \
+              --source telcustomerchurndata \
+              --destination $REMOTE_DIR
+            
             cd "$REMOTE_DIR"
 
             # Ensure Python & DVC installed on VM
