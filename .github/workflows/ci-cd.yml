@@ -162,9 +162,9 @@ jobs:
           cp cell2celltrain.csv.dvc $DVC_DATA_DIR/
 
           # Setup DVC remote
-          # dvc remote add -d azure_remote azure://telcustomerchurndata/churndata || true
-          # dvc remote modify --local azure_remote account_name $AZURE_STORAGE_ACCOUNT_NAME
-          # dvc remote modify --local azure_remote account_key $AZURE_STORAGE_ACCOUNT_KEY
+          dvc remote add -d azure_remote azure://telcustomerchurndata/churndata || true
+          dvc remote modify --local azure_remote account_name $AZURE_STORAGE_ACCOUNT_NAME
+          dvc remote modify --local azure_remote account_key $AZURE_STORAGE_ACCOUNT_KEY
 
           # Pull the data (downloads cell2celltrain.csv into the data dir)
           
