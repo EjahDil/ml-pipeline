@@ -202,7 +202,7 @@ jobs:
           username: ${{ secrets.AZURE_SSH_USER }}
           port: ${{ secrets.AZURE_SSH_PORT || 22 }}
           key: ${{ secrets.AZURE_SSH_PRIVATE_KEY }}
-          source: "./docker-compose.yml, ./data/cell2celltrain.csv"
+          source: "./docker-compose.yml, ./data/cell2celltrain.csv.dvc"
           target: ${{ env.REMOTE_DEPLOY_DIR }}
           strip_components: 0
 
