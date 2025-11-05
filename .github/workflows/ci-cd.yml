@@ -150,17 +150,17 @@ jobs:
           pwd
           ls -la
 
-          # Initialize DVC only if needed
-          if [ ! -d .dvc ]; then
-            dvc init
-          fi
+          # # Initialize DVC only if needed
+          # if [ ! -d .dvc ]; then
+          #   dvc init
+          # fi
 
           # # Ensure data directory exists
           mkdir -p $DVC_DATA_DIR
 
           # # Copy the .dvc metafile to the data directory
-          cell2celltrain.csv.dvc $DVC_DATA_DIR/
-          cell2celltrain_small.csv.dvc $DVC_DATA_DIR/
+          cp cell2celltrain.csv.dvc $DVC_DATA_DIR/
+          cp cell2celltrain_small.csv.dvc $DVC_DATA_DIR/
 
           # Setup DVC remote
           # dvc remote add -d azure_remote azure://telcustomerchurndata/churndata || true
@@ -243,7 +243,7 @@ jobs:
           envs: REMOTE_DIR,DOCKERHUB_USERNAME,DOCKERHUB_TOKEN,AZURE_STORAGE_ACCOUNT_NAME, AZURE_STORAGE_ACCOUNT_KEY
           script: |
             set -euo pipefail
-            
+
             mkdir -p "$REMOTE_DIR" || true
 
             if ! command -v az &> /dev/null; then
