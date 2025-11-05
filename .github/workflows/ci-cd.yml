@@ -36,7 +36,7 @@ jobs:
 
       - name: Check for requirements.txt
         run: |
-          if [ ! -f ml-pipeline/requirements.txt ]; then
+          if [ ! -f requirements.txt ]; then
             echo "requirements.txt not found!"
             exit 1
           fi
