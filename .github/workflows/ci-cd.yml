@@ -13,7 +13,7 @@ env:
   IMAGE_NAME: ejahdilan/churn-model
   REMOTE_DEPLOY_DIR: /home/churnsvc/mlflow-app-deploy
   LATEST_TAG: v1
-  DVC_DATA_DIR: ./data
+  # DVC_DATA_DIR: ./data
 
 # jobs:
 # Hello team ,just mimicing a scenario, will remove the unit test from here later.
@@ -155,11 +155,11 @@ jobs:
             dvc init
           fi
 
-          # Ensure data directory exists
-          mkdir -p $DVC_DATA_DIR
+          # # Ensure data directory exists
+          # mkdir -p $DVC_DATA_DIR
 
-          # Copy the .dvc metafile to the data directory
-          cp cell2celltrain.csv.dvc $DVC_DATA_DIR/
+          # # Copy the .dvc metafile to the data directory
+          # cp cell2celltrain.csv.dvc $DVC_DATA_DIR/
 
           # Setup DVC remote
           dvc remote add -d azure_remote azure://telcustomerchurndata/churndata || true
@@ -178,10 +178,10 @@ jobs:
           dvc pull
           # sudo chmod -R u+rwX,go+rX ./data
           # sudo chown -R $USER:$USER ./data
-          echo "Listing contents of the data directory:"
-          ls -la ./data
-          echo "Disk usage of data directory:"
-          du -sh ./data
+          # echo "Listing contents of the data directory:"
+          # ls -la ./data
+          # echo "Disk usage of data directory:"
+          # du -sh ./data
 
           # -r azure_remote ${DVC_DATA_DIR}
 
@@ -192,15 +192,23 @@ jobs:
           ssh-keyscan -H ${{ secrets.AZURE_SSH_HOST }} >> ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
 
+      - name: Ensure target subdir exists
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.AZURE_SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/deploy_key ${{ secrets.AZURE_SSH_USER }}@${{ secrets.AZURE_SSH_HOST }} "mkdir -p ${REMOTE_DEPLOY_DIR}/data"
+
+
       - name: Copy docker-compose and data folder to Azure VM
         uses: appleboy/scp-action@v1.0.0
         with:
           host: ${{ secrets.AZURE_SSH_HOST }}
           username: ${{ secrets.AZURE_SSH_USER }}
-          port: ${{ secrets.AZURE_SSH_PORT || 22 }}
+          port: ${{ secrets.AZURE_SSH_PORT}}
           key: ${{ secrets.AZURE_SSH_PRIVATE_KEY }}
-          source: "./docker-compose.yml, data/cell2celltrain.csv"
-          target: ${{ env.REMOTE_DEPLOY_DIR }}
+          source: "./docker-compose.yml, ./cell2cellltrain.csv"
+          target: ${{ env.REMOTE_DEPLOY_DIR }}/data
           strip_components: 0
 
       - name: Deploy on Azure VM with docker-compose
