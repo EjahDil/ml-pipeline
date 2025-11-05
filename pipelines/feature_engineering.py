@@ -43,8 +43,8 @@ class FeatureEngineering(BaseEstimator, TransformerMixin):
         
         self.selected_features = None
         self._parse_config(config_data)
-        self.scaler_type = config_data.get("preprocessing", {}).get("scaler", "standard")  # Default to standard
-        self.feature_creations = config_data.get("feature_creations", [])  # List of dicts for custom features, e.g., [{"name": "TotalCalls", "formula": "InboundCalls + OutboundCalls"}]
+        self.scaler_type = config_data.get("preprocessing", {}).get("scaler", "standard")
+        self.feature_creations = config_data.get("feature_creations", [])
     
     def _hash_file(self, path: Path) -> str:
         with open(path, 'rb') as f:
@@ -61,9 +61,9 @@ class FeatureEngineering(BaseEstimator, TransformerMixin):
         self.selected_features = features.get("selected_features", self.numerical + self.categorical)
         
         for col, spec in encodings.items():           
-            strategy = spec.get("strategy", "mapping").lower()  # Renamed "binary" to "mapping" for generality
+            strategy = spec.get("strategy", "mapping").lower()
             if strategy == "mapping":                
-                mapping = {str(k).strip(): v for k, v in spec.items() if k not in ["strategy"]}  # Allow any type, not just int
+                mapping = {str(k).strip(): v for k, v in spec.items() if k not in ["strategy"]} 
                 enc = ColumnEncoding(name=col, strategy="mapping", mapping=mapping)
             elif strategy in ["ordinal", "onehot"]:
                 categories = spec.get("categories")
@@ -122,11 +122,16 @@ class FeatureEngineering(BaseEstimator, TransformerMixin):
             X = self.drop_features(X)
             self.numerical = [col for col in self.numerical if col in X.columns]
         
+        missing_cols = set(self.columns) - set(X.columns)
+        if missing_cols:
+            logger.warning(f"First Column {col} missing in transform data. Filling with default/NaN.")            
+
         X = self.scale_numerical(X, is_fit=True)
         
         missing_cols = set(self.columns) - set(X.columns)
         if missing_cols:
-            raise ValueError(f"Missing columns: {missing_cols}")
+            logger.warning(f"Second Column {col} missing in transform data. Filling with default/NaN.")
+            X[col] = self.unknown_token
         
         for col, enc in self.encodings.items():
             col_data = X[col].astype(str)
@@ -138,7 +143,7 @@ class FeatureEngineering(BaseEstimator, TransformerMixin):
                     logger.warning(f"Invalid values in {col}: {list(invalid)[:5]} → mapped to NaN or default")
                 mapping = enc.mapping.copy()
                 if self.unknown_token not in mapping:
-                    mapping[self.unknown_token] = np.nan  # Or configurable default
+                    mapping[self.unknown_token] = np.nan
                 self.encoders[col] = mapping
             elif enc.strategy == "ordinal":
                 categories = enc.categories[:]
@@ -168,27 +173,38 @@ class FeatureEngineering(BaseEstimator, TransformerMixin):
         self._fitted = True
         logger.info(f"Fitted on {len(self.columns)} categorical and {len(self.numerical)} numerical columns")
         return self
-    
+       
     def transform(self, X: pd.DataFrame) -> pd.DataFrame:
         if not self._fitted:
             raise ValueError("Must call fit() first")
-        
+
+        for col in self.columns:
+            if col not in X.columns:
+                logger.warning(f"Column {col} missing in transform data. Filling with default/NaN.")
+
         X = pd.DataFrame(X).copy()
+
         X = self.create_features(X)
+
         if self.apply_selection:
             X = self.drop_features(X)
-            self.numerical = [col for col in self.numerical if col in X.columns]
-        
-        X = self.scale_numerical(X, is_fit=False)
-        
+
+            numerical = [col for col in self.numerical if col in X.columns]
+        else:
+            numerical = [col for col in self.numerical if col in X.columns]
+
+        if self.scaler and numerical:
+            X[numerical] = self.scaler.transform(X[numerical])
+
         results = []
         for col in self.columns:
             if col not in X.columns:
-                raise ValueError(f"Missing column: {col}")
-            
+                logger.warning(f"Column {col} missing in transform data. Filling with default/NaN.")
+                X[col] = self.unknown_token                
+
             enc = self.encodings[col]
             col_data = X[col].astype(str)
-            
+
             if enc.strategy == "mapping":
                 mapped = col_data.map(self.encoders[col]).fillna(np.nan)
                 results.append(pd.DataFrame(mapped.values, columns=[col], index=X.index))
@@ -199,10 +215,12 @@ class FeatureEngineering(BaseEstimator, TransformerMixin):
                 transformed = self.encoders[col].transform(col_data.to_frame())
                 ohe_cols = [f"{col}_{cat}" for cat in self.encoders[col].categories_[0]]
                 results.append(pd.DataFrame(transformed, columns=ohe_cols, index=X.index))
-        
-        encoded_df = pd.concat(results, axis=1)
 
-        full_df = pd.concat([X[self.numerical], encoded_df], axis=1)
+        encoded_df = pd.concat(results, axis=1) if results else pd.DataFrame(index=X.index)
+
+        numerical_df = X[numerical] if numerical else pd.DataFrame(index=X.index)
+
+        full_df = pd.concat([numerical_df, encoded_df], axis=1)
         return full_df
     
     def get_feature_names_out(self) -> List[str]:
