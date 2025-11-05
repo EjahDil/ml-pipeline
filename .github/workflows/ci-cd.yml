@@ -175,7 +175,11 @@ jobs:
 
       - name: Pull latest data with DVC from Azure Blob Storage
         run: |
-          dvc pull 
+           dvc pull
+           echo "Listing contents of the data directory:"
+           ls -la ./data
+           echo "Disk usage of data directory:"
+           du -sh ./data
           
           # -r azure_remote ${DVC_DATA_DIR}
 
