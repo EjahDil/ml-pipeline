@@ -177,8 +177,8 @@ jobs:
         run: |
           dvc pull
           dvc unprotect ./data/cell2celltrain.csv
-          # sudo chmod -R u+rwX,go+rX ./data
-          # sudo chown -R $USER:$USER ./data
+          sudo chmod -R u+rwX,go+rX ./data
+          sudo chown -R $USER:$USER ./data
           echo "Listing contents of the data directory:"
           ls -la ./data
           echo "Disk usage of data directory:"
