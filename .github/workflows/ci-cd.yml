@@ -206,8 +206,8 @@ jobs:
           username: ${{ secrets.AZURE_SSH_USER }}
           port: ${{ secrets.AZURE_SSH_PORT}}
           key: ${{ secrets.AZURE_SSH_PRIVATE_KEY }}
-          source: "./docker-compose.yml, ./cell2cellltrain.csv.dvc"
-          target: ${{ env.REMOTE_DEPLOY_DIR }}/data
+          source: "./docker-compose.yml, ./data/cell2cellltrain.csv.dvc"
+          target: ${{ env.REMOTE_DEPLOY_DIR }}
           strip_components: 0
 
       - name: Deploy on Azure VM with docker-compose
