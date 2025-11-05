@@ -175,6 +175,9 @@ jobs:
 
       - name: Pull latest data with DVC from Azure Blob Storage
         run: |
+
+          dvc config cache.protected false
+          dvc config core.protect_mode "false"
           dvc pull
           sudo chmod -R u+rwX,go+rX ./data
           sudo chown -R $USER:$USER ./data
