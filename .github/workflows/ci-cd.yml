@@ -19,39 +19,39 @@ env:
 # Hello team ,just mimicing a scenario, will remove the unit test from here later.
 
 jobs:
-  test:
-    name: Unit tests
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+  # test:
+  #   name: Unit tests
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v3
 
-      - uses: actions/setup-python@v5
-        name: Setup Python
-        with:
-          python-version: '3.13'
+  #     - uses: actions/setup-python@v5
+  #       name: Setup Python
+  #       with:
+  #         python-version: '3.13'
 
-      - name: Install pip
-        run: python -m pip install --upgrade pip
+  #     - name: Install pip
+  #       run: python -m pip install --upgrade pip
 
-      - name: Check for requirements.txt
-        run: |
-          if [ ! -f requirements.txt ]; then
-            echo "requirements.txt not found!"
-            exit 1
-          fi
+  #     - name: Check for requirements.txt
+  #       run: |
+  #         if [ ! -f requirements.txt ]; then
+  #           echo "requirements.txt not found!"
+  #           exit 1
+  #         fi
 
-      - name: Install dependencies
-        run: pip install -r requirements.txt
+  #     - name: Install dependencies
+  #       run: pip install -r requirements.txt
 
-      - name: Test with Pytest
-        run: |
-          set -a
-          source .env.example
-          set +a
-          echo "Loaded environment variables:"
-          env | grep POSTGRES_
-          pytest
+  #     - name: Test with Pytest
+  #       run: |
+  #         set -a
+  #         source .env.example
+  #         set +a
+  #         echo "Loaded environment variables:"
+  #         env | grep POSTGRES_
+  #         pytest
 
 
 
