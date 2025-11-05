@@ -160,6 +160,7 @@ jobs:
 
           # # Copy the .dvc metafile to the data directory
           cp cell2celltrain.csv.dvc $DVC_DATA_DIR/
+          cp cell2celltrain_small.csv.dvc $DVC_DATA_DIR/
 
           # Setup DVC remote
           # dvc remote add -d azure_remote azure://telcustomerchurndata/churndata || true
@@ -206,7 +207,7 @@ jobs:
           username: ${{ secrets.AZURE_SSH_USER }}
           port: ${{ secrets.AZURE_SSH_PORT}}
           key: ${{ secrets.AZURE_SSH_PRIVATE_KEY }}
-          source: "./docker-compose.yml, ./data/cell2cellltrain.csv.dvc"
+          source: "./docker-compose.yml, ./data/cell2cellltrain.csv.dvc, ./data/cell2cellltrain_small.csv.dvc"
           target: ${{ env.REMOTE_DEPLOY_DIR }}
           strip_components: 0
 
@@ -251,8 +252,6 @@ jobs:
             else
               dvc remote default azure_remote
             fi
-
-
 
             dvc remote modify --local azure_remote account_name $AZURE_STORAGE_ACCOUNT_NAME
             dvc remote modify --local azure_remote account_key $AZURE_STORAGE_ACCOUNT_KEY

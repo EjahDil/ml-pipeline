@@ -30,7 +30,7 @@ class DataPreparation:
             RAW_DATA_SOURCE = secret_path.read_text().strip()
         else:
 
-            RAW_DATA_SOURCE = "data/sample.csv" #os.getenv('RAW_DATA_SOURCE') 
+            RAW_DATA_SOURCE = "data/cell2celltrain_small.csv" #os.getenv('RAW_DATA_SOURCE') 
             
         df = pd.read_csv(RAW_DATA_SOURCE)
         logger.info(f"Loaded {len(df)} rows and {len(df.columns)} columns")
