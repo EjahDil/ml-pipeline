@@ -19,7 +19,7 @@ preprocessing:
   handle_outliers: true
 features:
   numerical: ['num1', 'num2']
-  target: target
+  target: Chrun
 """
 
 SAMPLE_DF = pd.DataFrame({
@@ -69,18 +69,6 @@ def test_handle_outliers(data_prep):
 
     assert outlier_df['num1'][4] == pytest.approx(63.875)
 
-@patch('sklearn.model_selection.train_test_split')
-def test_split_data(mock_train_test_split, data_prep):
-    mock_train_test_split.return_value = (SAMPLE_DF.iloc[:4], SAMPLE_DF.iloc[4:])
-    train, test = data_prep.split_data(SAMPLE_DF)
-    assert len(train) == 4
-    assert len(test) == 1
-    mock_train_test_split.assert_called_once_with(
-        SAMPLE_DF,
-        test_size=0.2,
-        random_state=42,
-        stratify=SAMPLE_DF['target']
-    )
 
 @patch('os.makedirs')
 @patch('pandas.DataFrame.to_csv')

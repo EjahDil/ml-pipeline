@@ -5,3 +5,5 @@ pytest
 xgboost
 mlflow
 load_dotenv
+seaborn
+azure-storage-blob
