@@ -1,9 +1,12 @@
 name: CI/CD – build, dvc pull, deploy
 
+# on:
+#   push:
+#     branches:
+#       - ci/cd-deploy
+
 on:
-  push:
-    branches:
-      - ci/cd-deploy
+  workflow_dispatch:
 
 permissions:
   contents: read
