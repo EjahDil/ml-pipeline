@@ -163,20 +163,19 @@ jobs:
           cp cell2celltrain_small.csv.dvc $DVC_DATA_DIR/
 
           # Setup DVC remote
-          # dvc remote add -d azure_remote azure://telcustomerchurndata/churndata || true
-          # dvc remote modify --local azure_remote account_name $AZURE_STORAGE_ACCOUNT_NAME
-          # dvc remote modify --local azure_remote account_key $AZURE_STORAGE_ACCOUNT_KEY
+          dvc remote add -d azure_remote azure://telcustomerchurndata/churndata || true
+          dvc remote modify --local azure_remote account_name $AZURE_STORAGE_ACCOUNT_NAME
+          dvc remote modify --local azure_remote account_key $AZURE_STORAGE_ACCOUNT_KEY
 
           # Pull the data (downloads cell2celltrain.csv into the data dir)
           
-          
-          # dvc pull
+          #dvc pull
           
           # azure_remote $DVC_DATA_DIR/cell2celltrain.csv.dvc
 
       - name: Listing the contents of the data directory
         run: |
-          #dvc pull
+          dvc pull
           # sudo chmod -R u+rwX,go+rX ./data
           # sudo chown -R $USER:$USER ./data
           echo "Listing contents of the data directory:"
@@ -246,11 +245,11 @@ jobs:
 
             mkdir -p "$REMOTE_DIR" || true
 
-            sudo chown -R $USER:$USER $REMOTE_DIR
+            # sudo chown -R $USER:$USER $REMOTE_DIR
 
-            chmod -R u+rwX $REMOTE_DIR
+            # chmod -R u+rwX $REMOTE_DIR
 
-            rm -rf "$REMOTE_DIR"/*
+            # rm -rf "$REMOTE_DIR"/*
 
             if ! command -v az &> /dev/null; then
               curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
@@ -268,33 +267,33 @@ jobs:
             cd "$REMOTE_DIR"
 
             # Ensure Python & DVC installed on VM
-            if ! command -v dvc &> /dev/null; then
-                python3 -m venv .venv
-                source .venv/bin/activate
-                pip install --upgrade pip
-                pip install "dvc[azure]"
-            else
-                source .venv/bin/activate
-            fi
+            # if ! command -v dvc &> /dev/null; then
+            #     python3 -m venv .venv
+            #     source .venv/bin/activate
+            #     pip install --upgrade pip
+            #     pip install "dvc[azure]"
+            # else
+            #     source .venv/bin/activate
+            # fi
 
-            # Initialize DVC only if needed
-            if [ ! -d .dvc ]; then
-              dvc init --no-scm
-            fi
+            # # Initialize DVC only if needed
+            # if [ ! -d .dvc ]; then
+            #   dvc init --no-scm
+            # fi
 
-            # Setup Azure remote (use environment variables or secrets on the VM)
-            if ! dvc remote list | grep -q "azure_remote"; then
-              dvc remote add -d azure_remote azure://telcustomerchurndata/churndata
-            else
-              dvc remote default azure_remote
-            fi
+            # # Setup Azure remote (use environment variables or secrets on the VM)
+            # if ! dvc remote list | grep -q "azure_remote"; then
+            #   dvc remote add -d azure_remote azure://telcustomerchurndata/churndata
+            # else
+            #   dvc remote default azure_remote
+            # fi
 
-            dvc remote modify --local azure_remote account_name $AZURE_STORAGE_ACCOUNT_NAME
-            dvc remote modify --local azure_remote account_key $AZURE_STORAGE_ACCOUNT_KEY
+            # dvc remote modify --local azure_remote account_name $AZURE_STORAGE_ACCOUNT_NAME
+            # dvc remote modify --local azure_remote account_key $AZURE_STORAGE_ACCOUNT_KEY
 
             # Pull data (will download into ./data or path defined in your dvc files)
 
-            dvc pull --allow-missing
+            # dvc pull --allow-missing
 
             # Docker Hub login
             echo "$DOCKERHUB_TOKEN" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
