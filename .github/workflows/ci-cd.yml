@@ -200,6 +200,7 @@ jobs:
             --destination churndata \
             --source ./data \
             --account-key $AZURE_STORAGE_ACCOUNT_KEY
+            --overwrite
 
       - name: Prepare known_hosts for SSH to Azure VM
         id: known-hosts
