@@ -6,3 +6,5 @@ cell2celltrain.csv
 dvc_test_script.py
 data_sampling.py
 /cell2celltrain_small.csv
+.env
+data/

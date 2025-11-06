@@ -1,5 +1,0 @@
-outs:
-- md5: f58d992c253daaed11cf1cf94f6242e5
-  size: 632910
-  hash: md5
-  path: cell2celltrain_small.csv
