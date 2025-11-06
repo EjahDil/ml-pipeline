@@ -45,7 +45,5 @@ jobs:
             source ml-pipeline/.env.example
             set +a
             
-            echo "Loaded environment variables:"
-            env | grep POSTGRES_  
-                      
+            
             pytest

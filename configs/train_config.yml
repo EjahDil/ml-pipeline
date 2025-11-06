@@ -103,7 +103,7 @@ encoding:
     categories: ["Professional", "Crafts", "Other", "Self", "Retired", "Homemaker", "Clerical", "Student"]
   
 training:
-  model_types: ["random_forest", "xgboost", "logistic_regression"]
+  model_types: ["random_forest", "xgboost"]
   cv_folds: 5
   scoring: roc_auc
   n_jobs: -1
@@ -125,9 +125,9 @@ model_params:
     random_state: 42
 
 mlflow:
-  tracking_uri: http://localhost:5000
-  experiment_name: telecom_churn
-  run_name: churn_model_run
+    tracking_uri: "http://mlflow-server:5000"  # Your MLflow server
+    experiment_name: "model_comparison_v1"
+    run_name: "model_comparison"
 
 monitoring:
   log_metrics: true
@@ -135,4 +135,8 @@ monitoring:
   log_model: true
   log_artifacts: true
 
-  
+
+azure_blob:
+  account_url: "https://mlchurndatastore.blob.core.windows.net/mlflow"
+  account_key: "${AZURE_STORAGE_ACCOUNT_KEY}"
+  container_name: "mlflow"

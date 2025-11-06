@@ -1,3 +1,4 @@
+from sklearn.model_selection import train_test_split
 import os
 import pandas as pd
 import numpy as np
@@ -25,17 +26,21 @@ class DataPreparation:
         logger.info("Loading data")
 
         RAW_DATA_SOURCE = ""
-        secret_path = Path("/run/secrets/raw_data_source")
+        secret_path = Path("/run/secrets/raw_data_source.txt")
         if secret_path.exists():
             RAW_DATA_SOURCE = secret_path.read_text().strip()
         else:
 
+<<<<<<< HEAD
             RAW_DATA_SOURCE = "data/cell2celltrain_small.csv" #os.getenv('RAW_DATA_SOURCE') 
+=======
+            RAW_DATA_SOURCE = "data/sample.csv"
+>>>>>>> main
             
         df = pd.read_csv(RAW_DATA_SOURCE)
         logger.info(f"Loaded {len(df)} rows and {len(df.columns)} columns")
         return df
-    
+
     def handle_missing_values(self, df: pd.DataFrame) -> pd.DataFrame:
         method = self.preprocessing_config['handle_missing']
         logger.info(f"Handling missing values using {method} method")
@@ -71,7 +76,6 @@ class DataPreparation:
         return df
     
     def split_data(self, df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
-        from sklearn.model_selection import train_test_split
         
         test_size = self.data_config['test_size']
         random_state = self.data_config['random_state']
@@ -84,7 +88,10 @@ class DataPreparation:
             random_state=random_state,
             stratify=df[self.config['features']['target']] if self.config['features']['target'] in df.columns else None
         )
-        
+        test_df.columns = train_df.columns
+        logger.info(f"Train columns: {list(train_df.columns)}")
+        logger.info(f"Test columns: {list(test_df.columns)}")
+
         return train_df, test_df
     
     def save_processed_data(self, train_df: pd.DataFrame, test_df: pd.DataFrame):       
