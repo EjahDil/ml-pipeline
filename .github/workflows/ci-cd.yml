@@ -294,7 +294,7 @@ jobs:
 
             # Pull data (will download into ./data or path defined in your dvc files)
 
-            dvc pull
+            dvc pull -v --force
 
             # Docker Hub login
             echo "$DOCKERHUB_TOKEN" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
