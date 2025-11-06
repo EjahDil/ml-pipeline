@@ -1,12 +1,12 @@
 name: CI/CD – build, dvc pull, deploy
 
-# on:
-#   push:
-#     branches:
-#       - ci/cd-deploy
-
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - ci/cd-deploy
+
+# on:
+#   workflow_dispatch:
 
 permissions:
   contents: read
@@ -58,8 +58,6 @@ jobs:
 
 
 
-
-  # Depends on your existing test workflow - wait for it to succeed
   build-and-push:
     name: Build & push Docker image
     runs-on: ubuntu-latest
