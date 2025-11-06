@@ -159,8 +159,8 @@ jobs:
           mkdir -p $DVC_DATA_DIR
 
           # # Copy the .dvc metafile to the data directory
-          cp cell2celltrain.csv.dvc $DVC_DATA_DIR/
-          cp cell2celltrain_small.csv.dvc $DVC_DATA_DIR/
+          cp dvc-track/cell2celltrain.csv.dvc $DVC_DATA_DIR/
+          # cp cell2celltrain_small.csv.dvc $DVC_DATA_DIR/
 
           # Setup DVC remote
           dvc remote add -d azure_remote azure://telcustomerchurndata/churndata || true
