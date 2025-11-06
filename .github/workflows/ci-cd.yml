@@ -249,9 +249,7 @@ jobs:
 
             # chmod -R u+rwX $REMOTE_DIR
 
-            # find "$REMOTE_DIR" -maxdepth 1 -type f \( -name "*.csv" -o -name "*.dvc" \) -exec rm -f {} \;
-
-            rm -rf "$REMOTE_DIR/data"
+            find "$REMOTE_DIR/data" -maxdepth 1 -type f -name "cell2cell*" -exec rm -f {} \;
 
             if ! command -v az &> /dev/null; then
               curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
