@@ -125,7 +125,7 @@ model_params:
     random_state: 42
 
 mlflow:
-    tracking_uri: "http://mlflow-server:5000"  # Your MLflow server
+    tracking_uri: "http://mlflow-server:5000"
     experiment_name: "model_comparison_v1"
     run_name: "model_comparison"
 
@@ -137,6 +137,45 @@ monitoring:
 
 
 azure_blob:
-  account_url: "https://mlchurndatastore.blob.core.windows.net/mlflow"
+  account_url: ${ACCOUNT_URL}
   account_key: "${AZURE_STORAGE_ACCOUNT_KEY}"
-  container_name: "mlflow"
+  container_name: ${AZURE_CONTAINER_NAME}
+
+azure:
+  storage_account_name: ${AZURE_STORAGE_ACCOUNT}
+  storage_account_key: ${AZURE_STORAGE_KEY}
+  container_name: ${AZURE_CONTAINER_NAME}
+  blob_prefix: ""
+
+dvc:
+  remote_name: "azure_remote"
+  data_dir: "./data"
+  tracked_files:
+    - "data/raw/*.csv"
+  watch_dir": "data/processed"
+
+drift_detection:
+  trigger_on_drift: true
+  enabled: true
+  reference_blob: ${REFERENCE_BLOB}
+  reference_data_path: ${REFERENCE_DATA_PATH}
+  metrics:
+    - "psi" 
+    - "ks"  
+    - "wasserstein"
+  thresholds:
+    psi: 0.2
+    ks: 0.1
+    wasserstein: 0.15
+  categorical_columns: [] 
+  numerical_columns: []   
+
+storage:
+  local_cache_dir: "./cache"
+  max_cache_size_gb: 10
+  cleanup_old_data_days: 30
+
+scheduler:
+  check_interval_seconds: 10 
+  enable_manual_trigger: true
+  manual_trigger_endpoint: "/trigger"
