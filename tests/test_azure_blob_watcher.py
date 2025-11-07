@@ -5,6 +5,11 @@ from datetime import datetime, timedelta
 from unittest.mock import MagicMock, patch, mock_open
 import asyncio
 
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
 from data_pipeline.azure_watcher import AzureBlobWatcher 
 
 @pytest.fixture

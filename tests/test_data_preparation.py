@@ -6,9 +6,12 @@ from unittest.mock import patch, MagicMock
 import yaml
 import logging
 from datetime import datetime, timezone
-from pipelines.pre_processing import DataPreparation
 import os
+import sys
+from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from pipelines.pre_processing import DataPreparation
 
 SAMPLE_CONFIG = """
 data:

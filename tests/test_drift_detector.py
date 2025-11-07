@@ -6,7 +6,10 @@ from pathlib import Path
 import tempfile
 import os
 from unittest.mock import patch
+import sys
+from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from data_pipeline.drift_detector import DriftDetector
 
