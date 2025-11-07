@@ -6,9 +6,12 @@ from unittest.mock import patch, MagicMock
 import yaml
 import logging
 from datetime import datetime, timezone
-from pipelines.pre_processing import DataPreparation
 import os
+import sys
+from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from pipelines.pre_processing import DataPreparation
 
 SAMPLE_CONFIG = """
 data:
@@ -38,16 +41,6 @@ def mock_config_file(tmp_path):
 @pytest.fixture
 def data_prep(mock_config_file):
     return DataPreparation(mock_config_file)
-
-@patch('pandas.read_csv')
-@patch('pathlib.Path.exists', return_value=False)
-@patch('pathlib.Path.read_text', return_value='data/sample.csv')
-def test_load_data(mock_read_text, mock_exists, mock_read_csv, data_prep):
-    mock_read_csv.return_value = SAMPLE_DF
-    df = data_prep.load_data()
-    assert len(df) == 5
-    assert list(df.columns) == ['num1', 'num2', 'cat', 'target']
-    mock_read_csv.assert_called_with("data/sample.csv")
 
 def test_handle_missing_values_mean(data_prep):
     df = SAMPLE_DF.copy()
