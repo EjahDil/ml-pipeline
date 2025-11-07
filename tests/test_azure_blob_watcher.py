@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from unittest.mock import MagicMock, patch, mock_open
 import asyncio
 
-from data_pipeline.modules.azure_watcher import AzureBlobWatcher 
+from data_pipeline.azure_watcher import AzureBlobWatcher 
 
 @pytest.fixture
 def config():

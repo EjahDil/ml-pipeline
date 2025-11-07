@@ -8,17 +8,14 @@ import os
 from unittest.mock import patch
 
 
-from data_pipeline.modules.drift_detector import DriftDetector
+from data_pipeline.drift_detector import DriftDetector
 
 def run_detect(detector, current_path, ref_path=None):
-    """Run the async detect_drift() in the current event loop."""
+
     import asyncio
     return asyncio.run(detector.detect_drift(current_path, ref_path))
 
 
-# ----------------------------------------------------------------------
-# 3. Fixtures (same data as before)
-# ----------------------------------------------------------------------
 @pytest.fixture
 def sample_config():
     return {
@@ -64,9 +61,6 @@ def current_with_drift():
     )
 
 
-# ----------------------------------------------------------------------
-# 4. Tests – no @pytest.mark.asyncio, no async def
-# ----------------------------------------------------------------------
 def test_no_drift(sample_config, reference_data, current_no_drift):
     with tempfile.TemporaryDirectory() as tmp:
         ref_path = os.path.join(tmp, "ref.parquet")

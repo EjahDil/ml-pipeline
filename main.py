@@ -13,9 +13,9 @@ from dotenv import load_dotenv
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from data_pipeline.modules.azure_watcher import AzureBlobWatcher
-from data_pipeline.modules.dvc_manager import DVCManager
-from data_pipeline.modules.drift_detector import DriftDetector
+from data_pipeline.azure_watcher import AzureBlobWatcher
+from data_pipeline.dvc_manager import DVCManager
+from data_pipeline.drift_detector import DriftDetector
 from scripts.train import train
 
 load_dotenv()
