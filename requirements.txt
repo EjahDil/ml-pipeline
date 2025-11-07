@@ -19,3 +19,8 @@ pyarrow==14.0.1
 mlflow
 load_dotenv
 seaborn
+anyio
+pytest-asyncio
+pytest-tornasync
+pytest-trio
+pytest-twisted
