@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - ci/cd-deploy
+      - main
   workflow_dispatch:
 
 permissions:
@@ -175,5 +176,5 @@ jobs:
               exit 1
             fi
 
-            # Cleanup dangling images optionally
+            # Cleanup dangling images
             docker image prune -f || true
