@@ -1,14 +1,7 @@
 .venv
 __pycache__
 .DS_Store
-<<<<<<< HEAD
-feature_engineering_wb.py
-cell2celltrain.csv
-dvc_test_script.py
-data_sampling.py
-/cell2celltrain_small.csv
-.env
-data/
-=======
 secrets
->>>>>>> main
+data_sampling.py
+cell2celltrain_small.csv
+.env

@@ -1,0 +1,67 @@
+services:
+
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:latest
+    command: >
+      mlflow server
+      --host 0.0.0.0
+      --port 5000
+      --backend-store-uri sqlite:///mlflow/mlflow.db
+      --default-artifact-root ./mlruns
+      --serve-artifacts
+      --allowed-hosts "*"
+    ports:
+      - "5000:5000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/')"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+    volumes:
+      - mlflow-db:/mlflow        
+      - mlflow-artifacts:/mlruns 
+    networks:
+      - mlflow-net
+    
+    restart: unless-stopped
+
+  churn_service:
+    image: ejahdilan/churn-model:v1
+    env_file:
+      - .env
+    # environment:
+    #   REGISTRY_URI: ${REGISTRY_URI}
+    #   STAGE: ${STAGE:-dev}
+    depends_on:
+      mlflow:
+        condition: service_healthy
+    volumes:
+      - ${HOST_DATA_PATH:-./data}:/app/data
+    networks:
+      - mlflow-net
+
+  # oauthapp-mflow:
+  #   image: ejahdilan/oauthapp-mlflow:v1
+  #   container_name: oauthapp-mflow
+  #   restart: always
+  #   depends_on:
+  #     mlflow:
+  #       condition: service_healthy
+  #   ports:
+  #     - "4180:4180"
+  #   volumes:
+  #     - /etc/oauth2_proxy.cfg:/etc/oauth2_proxy.cfg:ro
+  #   networks:
+  #     - mlflow-net
+
+volumes:
+  mlflow-db:
+  mlflow-artifacts:
+
+networks:
+  mlflow-net:
+    driver: bridge
+
+
+
