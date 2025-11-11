@@ -1,0 +1,25 @@
+services:
+  mlflowapp:
+    image: ejahdilan/mlflowapp:v8
+    container_name: mlflowapp
+    ports:
+      - "5000:5000"
+    environment:
+      MLFLOW_ALLOWED_HOSTS: "*"
+    volumes:
+      - ./mlflow_data:/mlflow_data
+      - ./mlruns:/mlruns
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+ 
+  oauthapp-mlflow:
+    image: ejahdilan/oauthapp-mlflow:v1
+    container_name: oauthapp-mlflow
+    restart: always
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./oauth2_proxy.cfg:/etc/oauth2_proxy.cfg:ro
