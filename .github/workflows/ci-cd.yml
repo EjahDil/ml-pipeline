@@ -13,7 +13,7 @@ permissions:
 
 env:
   REMOTE_DEPLOY_DIR: /home/churnsvc/mlflow-app-deploy
-  DVC_DATA_DIR: ./data
+  DVC_DATA_DIR: ./dvc-data
 
 jobs:
 
@@ -83,7 +83,7 @@ jobs:
           run: |
             dvc pull
             echo "Listing contents of the data directory:"
-            ls -la ./data
+            ls -la ./dvc-data
             echo "Disk usage of data directory:"
             du -sh ./data
 
@@ -99,7 +99,7 @@ jobs:
             az storage blob upload-batch \
               --account-name $AZURE_STORAGE_ACCOUNT_NAME \
               --destination churndata \
-              --source ./data \
+              --source ./dvc-data \
               --account-key $AZURE_STORAGE_ACCOUNT_KEY \
               --overwrite
 
