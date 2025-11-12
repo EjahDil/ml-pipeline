@@ -75,7 +75,7 @@ jobs:
             cp dvc-track/sample.csv.dvc $DVC_DATA_DIR/
 
             # Setup DVC remote
-            dvc remote add -d azure_remote azure://telcustomerdata/churndata || true
+            dvc remote add -d az_remote azure://telcustomerdata/churndata || true
             dvc remote modify --local azure_remote account_name $AZURE_STORAGE_ACCOUNT_NAME
             dvc remote modify --local azure_remote account_key $AZURE_STORAGE_ACCOUNT_KEY
 
