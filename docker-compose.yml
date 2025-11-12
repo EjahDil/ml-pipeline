@@ -20,6 +20,6 @@ services:
     container_name: oauthapp-mlflow
     restart: always
     ports:
-      - "8000:8000"
+      - "4180:4180"
     volumes:
       - ./oauth2_proxy.cfg:/etc/oauth2_proxy.cfg:ro
