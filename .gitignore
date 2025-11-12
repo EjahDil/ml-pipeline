@@ -5,3 +5,4 @@ secrets
 data_sampling.py
 cell2celltrain_small.csv
 .env
+cell2cell-train.csv.dvc
