@@ -76,8 +76,8 @@ jobs:
 
             # Setup DVC remote
             dvc remote add -d az_remote azure://telcustomerdata/churndata || true
-            dvc remote modify --local azure_remote account_name $AZURE_STORAGE_ACCOUNT_NAME
-            dvc remote modify --local azure_remote account_key $AZURE_STORAGE_ACCOUNT_KEY
+            dvc remote modify --local az_remote account_name $AZURE_STORAGE_ACCOUNT_NAME
+            dvc remote modify --local az_remote account_key $AZURE_STORAGE_ACCOUNT_KEY
 
         - name: Pulling data and listing the contents of the data directory
           run: |
