@@ -147,7 +147,11 @@ jobs:
 
               # find "$REMOTE_DIR/data" -maxdepth 1 -type f -name "cell2cell*" -exec rm -f {} \;
 
-              find "$REMOTE_DIR/data" -maxdepth 1 -type f \( -name "cell2cell*" -o -name "sample*" \) -exec rm -f {} \;
+              if [ -d "$REMOTE_DIR/data" ]; then
+                find "$REMOTE_DIR/data" -maxdepth 1 -type f \( -name "cell2cell*" -o -name "sample*" \) -exec rm -f {} \;
+              else
+                echo "Directory $REMOTE_DIR/data does not exist. Skipping..."
+              fi
 
               if ! command -v az &> /dev/null; then
                 curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
