@@ -3,7 +3,7 @@ name: CI/CD – build, dvc pull, deploy
 on:
   push:
     branches:
-      - main
+      # - main
       - ci/cd-deploy
   workflow_dispatch:
 
